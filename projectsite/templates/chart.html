@@ -185,7 +185,7 @@
 <script>
   var lineChart = document.getElementById("lineChart").getContext("2d"),
     barChart = document.getElementById("barChart").getContext("2d"),
-    //pieChart = document.getElementById("pieChart").getContext("2d"),
+    pieChart = document.getElementById("pieChart").getContext("2d"),
     doughnutChart = document.getElementById("doughnutChart").getContext("2d"),
     radarChart = document.getElementById("radarChart").getContext("2d"),
     bubbleChart = document.getElementById("bubbleChart").getContext("2d"),
@@ -291,7 +291,7 @@
       },
     },
   });
-/*   var myPieChart = new Chart(pieChart, {
+  var myPieChart = new Chart(pieChart, {
     type: "pie",
     data: {
       datasets: [
@@ -330,7 +330,7 @@
         },
       },
     },
-  }); */
+  });
 
   var myDoughnutChart = new Chart(doughnutChart, {
     type: "doughnut",
