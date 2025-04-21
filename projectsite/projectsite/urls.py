@@ -13,5 +13,6 @@ urlpatterns = [
     path('lineChart/', LineCountbyMonth, name='chart'),
     path('multilineChart/', MultilineIncidentTop3Country, name='chart'),
     path('multiBarchart/', multipleBarBySeverity, name='chart'),
+    path('incident/', views.map_incident, name='map-incident'),
 
 ]
