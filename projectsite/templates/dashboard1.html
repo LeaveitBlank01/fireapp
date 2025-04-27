@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Polar Area By Severity</h1>
+
+<div style="width: 50%; margin: auto;">
+    <canvas id="polarAreaChart"></canvas>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Polar Area Chart
+fetch('/polarAreaBySeverity/')
+    .then(response => response.json())
+    .then(data => {
+        const ctx = document.getElementById('polarAreaChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'polarArea',
+            data: {
+                labels: Object.keys(data),
+                datasets: [{
+                    label: 'Incidents by Severity',
+                    data: Object.values(data),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(255, 206, 86, 0.6)',
+                        'rgba(75, 192, 192, 0.6)'
+                    ]
+                }]
+            }
+        });
+    });
+
+
+</script>
+{% endblock %}

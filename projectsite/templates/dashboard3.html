@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Incidents by Hour and Day</h1>
+
+<div style="width: 800px; margin: auto; margin-top: 50px;">
+    <canvas id="heatmapChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('{% url "heatmap" %}')
+    .then(response => response.json())
+    .then(data => {
+        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const hours = Array.from({length: 24}, (_, i) => `${i}:00`);
+        
+        const datasets = hours.map((hour, hourIdx) => ({
+            label: hour,
+            data: days.map((_, dayIdx) => data.heatmap[dayIdx][hourIdx]),
+            backgroundColor: `rgba(255, ${255 - hourIdx*10}, 0, 0.6)`
+        }));
+
+        new Chart(document.getElementById('heatmapChart'), {
+            type: 'bar',
+            data: {
+                labels: days,
+                datasets: datasets
+            },
+            options: {
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: (context) => {
+                                const day = days[context[0].dataIndex];
+                                const hour = hours[context[0].datasetIndex];
+                                return `${day} ${hour}`;
+                            },
+                            label: (ctx) => `${ctx.raw} incidents`
+                        }
+                    }
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+

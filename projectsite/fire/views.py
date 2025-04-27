@@ -189,3 +189,120 @@ def map_incident(request):
  
      context = {'incidents': incident_data}
      return render(request, 'map_incident.html', context)
+
+def dashboard1(request):
+    return render(request, 'dashboard1.html')
+
+
+# New API for Polar Area Chart
+def polarAreaBySeverity(request):
+    query = '''
+    SELECT severity_level, COUNT(*) as count
+    FROM fire_incident
+    GROUP BY severity_level
+    '''
+    data = {}
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        rows = cursor.fetchall()
+    
+    if rows:
+        data = {severity: count for severity, count in rows}
+
+    return JsonResponse(data)
+
+# New API for Scatter Chart
+def scatterLatLonIncidents(request):
+    incidents = Incident.objects.select_related('location').values(
+        'location__latitude', 'location__longitude'
+    )
+
+    points = []
+    for i in incidents:
+        points.append({
+            'x': float(i['location__longitude']),
+            'y': float(i['location__latitude']),
+        })
+
+    return JsonResponse(points, safe=False)
+
+def dashboard2(request):
+    return render(request, 'dash2.html')
+
+
+
+
+# Heatmap View
+def heatmapByHourDay(request):
+    query = '''
+    SELECT 
+        CAST(strftime('%H', date_time) AS INTEGER) AS hour, 
+        (CAST(strftime('%w', date_time) AS INTEGER) + 6) % 7 AS day,  # Convert to 0=Monday
+        COUNT(*) as count
+    FROM fire_incident
+    GROUP BY hour, day
+    '''
+    
+    heatmap = [[0]*24 for _ in range(7)]  # 7 days x 24 hours
+    
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        for hour, day, count in cursor.fetchall():
+            heatmap[day][hour] = count
+    
+    return JsonResponse({'heatmap': heatmap})
+
+# Stacked Bar View
+def stackedBarIncidentTypeCountry(request):
+    query = '''
+    SELECT 
+        fl.country, 
+        fi.incident_type, 
+        COUNT(*) as count
+    FROM fire_incident fi
+    JOIN fire_locations fl ON fi.location_id = fl.id
+    GROUP BY fl.country, fi.incident_type
+    '''
+    
+    data = {}
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        for country, incident_type, count in cursor.fetchall():
+            if country not in data:
+                data[country] = {}
+            data[country][incident_type] = count
+    
+    return JsonResponse(data)
+
+# Donut Chart View
+def donutResponseTimeDistribution(request):
+    query = '''
+    SELECT 
+        CASE
+            WHEN response_time < 5 THEN '<5 mins'
+            WHEN response_time BETWEEN 5 AND 9 THEN '5-9 mins'
+            WHEN response_time BETWEEN 10 AND 19 THEN '10-19 mins'
+            WHEN response_time >= 20 THEN '20+ mins'
+            ELSE 'Unknown'
+        END AS bucket,
+        COUNT(*) as count
+    FROM fire_incident
+    GROUP BY bucket
+    '''
+    
+    data = {}
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        for bucket, count in cursor.fetchall():
+            data[bucket] = count
+    
+    return JsonResponse(data)
+
+def dashboard3(request):
+    return render(request, 'dashboard3.html')
+
+def dashboard4(request):
+    return render(request, 'dashboard4.html')
+
+def dashboard5(request):
+    return render(request, 'dashboard5.html')

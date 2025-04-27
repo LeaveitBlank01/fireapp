@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Response Time Distribution</h1>
+
+<div style="width: 600px; margin: auto; margin-top: 50px;">
+    <canvas id="donutChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('{% url "response-times" %}')
+    .then(response => response.json())
+    .then(data => {
+        const labels = Object.keys(data);
+        const counts = Object.values(data);
+
+        new Chart(document.getElementById('donutChart'), {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: counts,
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', 
+                        '#4BC0C0', '#9966FF'
+                    ]
+                }]
+            },
+            options: {
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => `${ctx.label}: ${ctx.raw} incidents`
+                        }
+                    }
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+

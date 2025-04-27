@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Location of Incidents by LatLong</h1>
+
+
+
+<div style="width: 50%; margin: auto; margin-top: 50px;">
+    <canvas id="scatterChart"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+
+
+// Scatter Chart
+fetch('/scatterLatLonIncidents/')
+    .then(response => response.json())
+    .then(points => {
+        const ctx = document.getElementById('scatterChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Incident Locations',
+                    data: points,
+                    backgroundColor: 'rgba(54, 162, 235, 0.8)'
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Longitude'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Latitude'
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
