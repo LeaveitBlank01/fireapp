@@ -245,25 +245,32 @@ def dashboard2(request):
 
 
 
-# Heatmap View
+
 def heatmapByHourDay(request):
     query = '''
     SELECT 
         CAST(strftime('%H', date_time) AS INTEGER) AS hour, 
-        (CAST(strftime('%w', date_time) AS INTEGER) + 6) % 7 AS day,  # Convert to 0=Monday
+        (CAST(strftime('%w', date_time) AS INTEGER) + 6) % 7 AS day,   -- Convert to 0=Monday
         COUNT(*) as count
     FROM fire_incident
     GROUP BY hour, day
     '''
     
-    heatmap = [[0]*24 for _ in range(7)]  # 7 days x 24 hours
+    heatmap = [[0]*24 for _ in range(7)]
     
     with connection.cursor() as cursor:
         cursor.execute(query)
         for hour, day, count in cursor.fetchall():
-            heatmap[day][hour] = count
+            if hour is not None and day is not None:  # Check if hour and day are valid
+                if 0 <= hour < 24 and 0 <= day < 7:  # Ensure hour and day are within expected ranges
+                    heatmap[day][hour] = count
+                else:
+                    print(f"Invalid hour/day: hour={hour}, day={day}")
+            else:
+                print(f"None value detected: hour={hour}, day={day}")
     
     return JsonResponse({'heatmap': heatmap})
+
 
 # Stacked Bar View
 def stackedBarIncidentTypeCountry(request):
@@ -272,8 +279,8 @@ def stackedBarIncidentTypeCountry(request):
         fl.country, 
         fi.incident_type, 
         COUNT(*) as count
-    FROM fire_incident fi
-    JOIN fire_locations fl ON fi.location_id = fl.id
+    FROM incident fi  -- Updated table name to match the model name
+    JOIN locations fl ON fi.location_id = fl.id  -- Updated to match the Locations model
     GROUP BY fl.country, fi.incident_type
     '''
     
@@ -286,6 +293,7 @@ def stackedBarIncidentTypeCountry(request):
             data[country][incident_type] = count
     
     return JsonResponse(data)
+
 
 # Donut Chart View
 def donutResponseTimeDistribution(request):
