@@ -1,4 +1,7 @@
-{% extends 'base.html' %} {% load static %} {% block content %}
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 
 <div class="page-inner">
@@ -6,82 +9,119 @@
         <h4 class="page-title">Dashboard</h4>
         <ul class="breadcrumbs">
             <li class="nav-home">
-                <a href="#">
-                    <i class="flaticon-home"></i>
-                </a>
+                <a href="#"><i class="flaticon-home"></i></a>
             </li>
-            <li class="separator">
-                <i class="flaticon-right-arrow"></i>
-            </li>
-            <li class="nav-item">
-                <a href="#">Maps</a>
-            </li>
-            <li class="separator">
-                <i class="flaticon-right-arrow"></i>
-            </li>
-            <li class="nav-item">
-                <a href="#">Incident</a>
-            </li>
+            <li class="separator"><i class="flaticon-right-arrow"></i></li>
+            <li class="nav-item"><a href="#">Maps</a></li>
+            <li class="separator"><i class="flaticon-right-arrow"></i></li>
+            <li class="nav-item"><a href="#">Incident</a></li>
         </ul>
     </div>
+
     <div class="row">
         <div class="col-md-12">
             <div class="card card-transparent">
                 <div class="card-header">
                     <h4 class="card-title text-center">Fire Incidents</h4>
-                    <p class="card-category text-center">Looks great on any resolution. Made by our friends from <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>.</p>
+                    <p class="card-category text-center">
+                        Looks great on any resolution. Made by our friends from 
+                        <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>.
+                    </p>
                 </div>
                 <div class="card-body">
                     <div class="col-md-10 ml-auto mr-auto">
-                        <div id="map" style="width: 100%; height: 400px"></div>
+                        
+
+                        <div class="form-group text-center">
+                            <label for="cityFilter"><strong>Filter by City:</strong></label>
+                            <select id="cityFilter" class="form-control" style="max-width: 300px; margin: auto;" onchange="filterMarkers()">
+                                <option value="">All Cities</option>
+                                {% for city in cities %}
+                                    <option value="{{ city }}">{{ city }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+
+                        <div id="map" style="width: 100%; height: 500px; margin-top: 20px;"></div>
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
 <script>
-    var map = L.map('map').setView([9.81644, 118.72239], 13);
+    var map = L.map('map').setView([9.81644, 118.72239], 10); 
+
     var fireIcon = L.icon({
-        iconUrl: '../static/img/fire.png', 
-        iconSize: [50, 50], 
+        iconUrl: "{% static 'img/fire.png' %}", 
+        iconSize: [40, 40], 
     });
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>contributors'
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // create an array to hold all the markers
     var markers = [];
-
-    // Define the marker data
+    var allMarkers = [];
     var markerData = {{ incidents|safe }};
+    var originalBounds;
 
-    //Loop through the marker data and create markers
+
     markerData.forEach(function (data) {
         var latitude = parseFloat(data.latitude);
         var longitude = parseFloat(data.longitude);
 
-        var marker = L.marker([latitude, longitude], { icon: fireIcon }).addTo(map);
+        var marker = L.marker([latitude, longitude], { icon: fireIcon });
+        marker.city = data.city; 
+        marker.bindPopup(data.severity + " - " + data.description);
 
-        // Create a popup and set its content
-        var popupContent = data.severity_level + " - " + data.description;
-        var popup = L.popup().setContent(popupContent);
-
-        marker.bindPopup(popupContent);
-
-        // Bind mouseover and mouseout events to the marker
-        marker.on('mouseover', function (e) {
-            this.openPopup();
-        });
-
-        marker.on('mouseout', function (e) {
-            this.closePopup();
-        });
-
-        // Add the marker to the marker array
+        allMarkers.push(marker);
         markers.push(marker);
+        marker.addTo(map);
     });
+
+
+    if (allMarkers.length > 0) {
+        var group = new L.featureGroup(allMarkers);
+        originalBounds = group.getBounds();
+        map.fitBounds(originalBounds);
+    }
+
+    function filterMarkers() {
+        var selectedCity = document.getElementById('cityFilter').value;
+
+
+        markers.forEach(function (marker) {
+            map.removeLayer(marker);
+        });
+        markers = [];
+
+
+        var filteredMarkers = allMarkers.filter(function (marker) {
+            return selectedCity === '' || marker.city === selectedCity;
+        });
+
+        filteredMarkers.forEach(function (marker) {
+            marker.addTo(map);
+            markers.push(marker);
+        });
+
+        if (filteredMarkers.length > 0) {
+            var group = new L.featureGroup(filteredMarkers);
+            map.fitBounds(group.getBounds(), { padding: [50, 50] });
+        } else {
+
+            if (originalBounds) {
+                map.fitBounds(originalBounds, { padding: [50, 50] });
+            }
+        }
+    }
 </script>
+
 {% endblock %}
+

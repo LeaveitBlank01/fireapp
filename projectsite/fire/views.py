@@ -175,20 +175,33 @@ def multipleBarBySeverity(request):
     return JsonResponse(result)
 
 def map_incident(request):
-     incidents = Incident.objects.select_related('location').values(
-         'location__latitude', 'location__longitude', 'severity_level', 'description')
- 
-     incident_data = []
-     for i in incidents:
-         incident_data.append({
-             'latitude': float(i['location__latitude']),
-             'longitude': float(i['location__longitude']),
-             'severity': i['severity_level'],
-             'description': i['description'],
-         })
- 
-     context = {'incidents': incident_data}
-     return render(request, 'map_incident.html', context)
+    incidents = Incident.objects.select_related('location').values(
+        'location__latitude', 'location__longitude', 'severity_level', 'description', 'location__city'
+    )
+
+    incident_data = []
+    cities = set()
+
+    for i in incidents:
+        city = i['location__city']
+        cities.add(city)
+
+        incident_data.append({
+            'latitude': float(i['location__latitude']),
+            'longitude': float(i['location__longitude']),
+            'severity': i['severity_level'],
+            'description': i['description'],
+            'city': city
+        })
+
+    context = {
+        'incidents': incident_data,
+        'cities': sorted(cities)
+    }
+
+    return render(request, 'map_incident.html', context)
+
+
 
 def dashboard1(request):
     return render(request, 'dashboard1.html')
