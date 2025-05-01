@@ -1,8 +1,24 @@
 from django.contrib import admin
 from django.urls import path
-
-from fire.views import HomePageView, ChartView, PieCountbySeverity, LineCountbyMonth, MultilineIncidentTop3Country, multipleBarBySeverity, polarAreaBySeverity, scatterLatLonIncidents, heatmapByHourDay, stackedBarIncidentTypeCountry, donutResponseTimeDistribution
 from fire import views
+from fire.views import (
+    HomePageView,
+    ChartView,
+    PieCountbySeverity,
+    LineCountbyMonth,
+    MultilineIncidentTop3Country,
+    multipleBarBySeverity,
+    polarAreaBySeverity,
+    scatterLatLonIncidents,
+    heatmapByHourDay,
+    stackedBarIncidentTypeCountry,
+    donutResponseTimeDistribution,
+    IncidentListView,
+    IncidentCreateView,
+    IncidentUpdateView,
+    IncidentDeleteView
+)   
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -24,5 +40,10 @@ urlpatterns = [
     path('dashboard3/', views.dashboard3, name='dashboard3'),
     path('dashboard4/', views.dashboard4, name='dashboard4'),
     path('dashboard5/', views.dashboard5, name='dashboard5'),
+
+    path('incidents/', IncidentListView.as_view(), name='incident-list'),
+    path('incident/create/', IncidentCreateView.as_view(), name='incident-add'),
+    path('incident/<int:pk>/update/', IncidentUpdateView.as_view(), name='incident-update'),
+    path('incident/<int:pk>/delete/', IncidentDeleteView.as_view(), name='incident-delete'),
 
 ]

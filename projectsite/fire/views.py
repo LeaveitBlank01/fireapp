@@ -1,13 +1,17 @@
 from django.shortcuts import render
-from django.views.generic.list import ListView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from fire.models import Locations, Incident, FireStation
-
+from django.urls import reverse_lazy
+from django.contrib import messages
+from django.db.models import Q
 from django.db import connection
 from django.http import JsonResponse
 from django.db.models.functions import ExtractMonth
 
 from django.db.models import Count
 from datetime import datetime
+
+from fire.forms import Incident_Form ,LocationForm, FireStationzForm
 
 
 class HomePageView(ListView):
@@ -327,3 +331,79 @@ def dashboard4(request):
 
 def dashboard5(request):
     return render(request, 'dashboard5.html')
+
+
+# Incident: Create View
+class IncidentCreateView(CreateView):
+    model = Incident
+    form_class = Incident_Form
+    template_name = 'incident_add.html'
+    success_url = reverse_lazy('incident-list')
+
+    def form_valid(self, form):
+        description = form.instance.description[:50] + "..." if len(form.instance.description) > 50 else form.instance.description
+        messages.success(self.request, f'Incident "{description}" created successfully!')
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['incident_list'] = self.success_url
+        return context
+
+
+# Incident: Update View
+class IncidentUpdateView(UpdateView):
+    model = Incident
+    form_class = Incident_Form
+    template_name = 'incident_edit.html'
+    success_url = reverse_lazy('incident-list')
+
+    def form_valid(self, form):
+        description = form.instance.description[:50] + "..." if len(form.instance.description) > 50 else form.instance.description
+        messages.success(self.request, f'Incident "{description}" updated successfully!')
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['incident_list'] = self.success_url
+        return context
+
+
+# Incident: Delete View
+class IncidentDeleteView(DeleteView):
+    model = Incident
+    template_name = 'incident_del.html'
+    success_url = reverse_lazy('incident-list')
+    context_object_name = 'incident'
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        description = self.object.description[:50] + "..." if len(self.object.description) > 50 else self.object.description
+        messages.success(self.request, f'Successfully deleted incident: "{description}"')
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f"Delete Incident #{self.object.id}"
+        context['incident_list'] = self.success_url
+        return context
+
+
+# Incident: List/Search View
+class IncidentListView(ListView):
+    model = Incident
+    template_name = 'incident_list.html'
+    context_object_name = 'object_list'
+    paginate_by = 10
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super().get_queryset(*args, **kwargs)
+        query = self.request.GET.get("q")
+        if query:
+            qs = qs.filter(
+                Q(description__icontains=query) |
+                Q(severity_level__icontains=query) |
+                Q(location__name__icontains=query) |
+                Q(date_time__icontains=query)
+            )
+        return qs
