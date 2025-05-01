@@ -407,3 +407,78 @@ class IncidentListView(ListView):
                 Q(date_time__icontains=query)
             )
         return qs
+    
+
+class LocationListView(ListView):
+    model = Locations
+    template_name = 'location_list.html'
+    context_object_name = 'object_list'
+    paginate_by = 10
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super().get_queryset(*args, **kwargs)
+        query = self.request.GET.get("q")
+        if query:
+            qs = qs.filter(
+                Q(name__icontains=query) |
+                Q(address__icontains=query) |
+                Q(city__icontains=query) |
+                Q(country__icontains=query)
+            )
+        return qs
+class LocationCreateView(CreateView):
+    model = Locations
+    form_class = LocationForm
+    template_name = 'location_add.html'
+    success_url = reverse_lazy('location-list')
+
+    def form_valid(self, form):
+        name = form.instance.name
+        messages.success(self.request, f'Location "{name}" created successfully!')
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['loc_list'] = self.success_url  # Pass the cancel URL to template
+        return context
+
+class LocationUpdateView(UpdateView):
+    model = Locations
+    form_class = LocationForm
+    template_name = 'location_edit.html'
+    success_url = reverse_lazy('location-list')
+
+    def form_valid(self, form):
+        name = form.instance.name
+        messages.success(self.request, f'Location "{name}" updated successfully!')
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['location_list'] = self.success_url  # Pass the cancel URL to template
+        return context
+
+class LocationDeleteView(DeleteView):
+    model = Locations
+    template_name = 'location_del.html'
+    success_url = reverse_lazy('location-list')
+    context_object_name = 'location'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f"Delete Location #{self.object.id}"
+        return context
+
+    def form_valid(self, form):
+        name = self.object.name
+        response = super().form_valid(form)
+        messages.success(self.request, 
+            f'Location "{name}" was successfully deleted.',
+            extra_tags='danger'
+        )
+        return response
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['loc_list'] = self.success_url  # Pass the cancel URL to template
+        return context
