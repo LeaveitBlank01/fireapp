@@ -482,3 +482,28 @@ class LocationDeleteView(DeleteView):
         context = super().get_context_data(**kwargs)
         context['loc_list'] = self.success_url  # Pass the cancel URL to template
         return context
+
+def some_view(request):
+    # ...your logic...
+    messages.success(request, "Action completed successfully!")
+    # ...redirect or render...
+
+# Boat: Create View
+class BoatCreateView(CreateView):
+    model = Incident  # Assuming Boat is also an Incident for this example
+    form_class = Incident_Form
+    template_name = 'boat_add.html'
+    success_url = reverse_lazy('incident-list')
+
+    def post(self, request, *args, **kwargs):
+        # Custom validation logic for Boat
+        errors = []
+        # ...populate errors if any validation fails...
+
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            return self.form_invalid(self.get_form())
+
+        messages.success(request, "Boat added successfully!")
+        return super().post(request, *args, **kwargs)
