@@ -263,10 +263,10 @@
                     var multipleLineChart = document.getElementById("multipleLineChart").getContext("2d");
 
                     new Chart(multipleLineChart, {
-                    type: "line",
-                    data: {
-                        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                        datasets: [
+                type: "line",
+                data: {
+                    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                    datasets: [
                         {
                             label: countries[0],
                             borderColor: "#1d7af3",
@@ -294,10 +294,10 @@
                             fill: true,
                             borderWidth: 2,
                             data: incidentCounts3,
-                            },
-                        ],
-                    },
-                    options: {
+                        },
+                    ],
+                },
+                options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     legend: {
@@ -317,7 +317,7 @@
                     },
                 },
             });
-        });
+        }) // <-- FIXED: removed semicolon and newline before .catch
         .catch((error) => console.error("Error:", error));
         
         fetch("/multiBarChart/")
@@ -409,7 +409,7 @@
                     }
                 }
             });
-        });
+        }) // <-- FIXED: removed semicolon and newline before .catch
         .catch((error) => console.error("Error:", error));
 
         }
