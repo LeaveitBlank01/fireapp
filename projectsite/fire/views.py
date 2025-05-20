@@ -265,8 +265,8 @@ def heatmapByHourDay(request):
     with connection.cursor() as cursor:
         cursor.execute(query)
         for hour, day, count in cursor.fetchall():
-            if hour is not None and day is not None:  # Check if hour and day are valid
-                if 0 <= hour < 24 and 0 <= day < 7:  # Ensure hour and day are within expected ranges
+            if hour is not None and day is not None:  
+                if 0 <= hour < 24 and 0 <= day < 7: 
                     heatmap[day][hour] = count
                 else:
                     print(f"Invalid hour/day: hour={hour}, day={day}")
@@ -278,7 +278,6 @@ def heatmapByHourDay(request):
 
 # Stacked Bar View
 def stackedBarIncidentTypeCountry(request):
-    # Group by country and severity_level
     qs = Incident.objects.values('location__country', 'severity_level').annotate(count=Count('id'))
     data = {}
     for row in qs:
@@ -305,13 +304,11 @@ def donutResponseTimeDistribution(request):
     FROM fire_incident
     GROUP BY bucket
     '''
-    
     data = {}
     with connection.cursor() as cursor:
         cursor.execute(query)
         for bucket, count in cursor.fetchall():
             data[bucket] = count
-    
     return JsonResponse(data)
 
 def dashboard3(request):
@@ -430,7 +427,7 @@ class LocationCreateView(CreateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['loc_list'] = self.success_url  # Pass the cancel URL to template
+        context['loc_list'] = self.success_url  
         return context
 
 class LocationUpdateView(UpdateView):
@@ -446,7 +443,7 @@ class LocationUpdateView(UpdateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['location_list'] = self.success_url  # Pass the cancel URL to template
+        context['location_list'] = self.success_url  
         return context
 
 class LocationDeleteView(DeleteView):
@@ -471,25 +468,25 @@ class LocationDeleteView(DeleteView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['loc_list'] = self.success_url  # Pass the cancel URL to template
+        context['loc_list'] = self.success_url
         return context
 
 def some_view(request):
-    # ...your logic...
+   
     messages.success(request, "Action completed successfully!")
-    # ...redirect or render...
+   
 
 # Boat: Create View
 class BoatCreateView(CreateView):
-    model = Incident  # Assuming Boat is also an Incident for this example
+    model = Incident  
     form_class = Incident_Form
     template_name = 'boat_add.html'
     success_url = reverse_lazy('incident-list')
 
     def post(self, request, *args, **kwargs):
-        # Custom validation logic for Boat
+       
         errors = []
-        # ...populate errors if any validation fails...
+     
 
         if errors:
             for error in errors:
@@ -500,7 +497,6 @@ class BoatCreateView(CreateView):
         return super().post(request, *args, **kwargs)
 
 def multi_line_chart(request):
-    # Example data, replace with your real data logic
     data = {
         "CountryA": {"Jan": 10, "Feb": 20, "Mar": 30, "Apr": 40, "May": 50, "Jun": 60, "Jul": 70, "Aug": 80, "Sep": 90, "Oct": 100, "Nov": 110, "Dec": 120},
         "CountryB": {"Jan": 15, "Feb": 25, "Mar": 35, "Apr": 45, "May": 55, "Jun": 65, "Jul": 75, "Aug": 85, "Sep": 95, "Oct": 105, "Nov": 115, "Dec": 125},
@@ -509,7 +505,7 @@ def multi_line_chart(request):
     return JsonResponse(data)
 
 def multi_bar_chart(request):
-    # Example data, replace with your real data logic
+
     data = {
         "Minor": {"Dec": 10, "Jan": 20, "Feb": 30, "Mar": 40, "Apr": 50, "May": 60, "Jun": 70, "Jul": 80, "Aug": 90, "Sep": 100, "Oct": 110, "Nov": 120},
         "Moderate": {"Dec": 15, "Jan": 25, "Feb": 35, "Mar": 45, "Apr": 55, "May": 65, "Jun": 75, "Jul": 85, "Aug": 95, "Sep": 105, "Oct": 115, "Nov": 125},

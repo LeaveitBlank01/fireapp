@@ -16,8 +16,8 @@ class Locations(BaseModel):
     longitude = models.DecimalField(
         max_digits=22, decimal_places=16, null=True, blank=True)
     address = models.CharField(max_length=150)
-    city = models.CharField(max_length=150)  # can be in separate table
-    country = models.CharField(max_length=150)  # can be in separate table
+    city = models.CharField(max_length=150) 
+    country = models.CharField(max_length=150)
 
 
 class Incident(BaseModel):
@@ -30,6 +30,7 @@ class Incident(BaseModel):
     date_time = models.DateTimeField(blank=True, null=True)
     severity_level = models.CharField(max_length=45, choices=SEVERITY_CHOICES)
     description = models.CharField(max_length=250)
+    response_time = models.IntegerField(null=True, blank=True)
 
 
 class FireStation(BaseModel):
@@ -39,8 +40,8 @@ class FireStation(BaseModel):
     longitude = models.DecimalField(
         max_digits=22, decimal_places=16, null=True, blank=True)
     address = models.CharField(max_length=150)
-    city = models.CharField(max_length=150)  # can be in separate table
-    country = models.CharField(max_length=150)  # can be in separate table
+    city = models.CharField(max_length=150) 
+    country = models.CharField(max_length=150)  
 
 
 class Firefighters(BaseModel):
@@ -62,7 +63,7 @@ class Firefighters(BaseModel):
 class FireTruck(BaseModel):
     truck_number = models.CharField(max_length=150)
     model = models.CharField(max_length=150)
-    capacity = models.CharField(max_length=150)  # water
+    capacity = models.CharField(max_length=150) 
     station = models.ForeignKey(FireStation, on_delete=models.CASCADE)
 
 
