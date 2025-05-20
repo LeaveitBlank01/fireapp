@@ -10,28 +10,23 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Fetch the data from the backend
     fetch('{% url "stacked-bar" %}')
     .then(response => response.json())
     .then(data => {
-        // Log the data to the console for debugging
-        console.log(data);
-
-        // Extract countries (keys) and incident types (sub-keys)
         const countries = Object.keys(data);
         const incidentTypes = [...new Set(
             Object.values(data).flatMap(country => Object.keys(country))
         )];
-        
-        // Prepare the datasets for Chart.js
-        const datasets = incidentTypes.map(type => ({
+        const colors = [
+            "#1d7af3", "#f3545d", "#fdaf4b", "#59d05d", "#716aca", "#ffa534"
+        ];
+        const datasets = incidentTypes.map((type, idx) => ({
             label: type,
-            data: countries.map(country => data[country][type] || 0),  // Ensure missing data is treated as 0
-            backgroundColor: `#${Math.floor(Math.random()*16777215).toString(16)}`,  // Random color for each dataset
-            stack: 'stack1'  // Stack datasets on top of each other
+            data: countries.map(country => data[country][type] || 0),
+            backgroundColor: colors[idx % colors.length],
+            stack: 'stack1'
         }));
 
-        // Initialize the stacked bar chart
         new Chart(document.getElementById('stackedBarChart'), {
             type: 'bar',
             data: {
@@ -40,13 +35,13 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             options: {
                 responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: 'Incident Types by Country' }
+                },
                 scales: {
-                    x: { 
-                        stacked: true  // Stack bars on x-axis
-                    },
-                    y: { 
-                        stacked: true  // Stack bars on y-axis
-                    }
+                    x: { stacked: true },
+                    y: { stacked: true }
                 }
             }
         });

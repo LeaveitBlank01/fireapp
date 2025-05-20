@@ -278,24 +278,15 @@ def heatmapByHourDay(request):
 
 # Stacked Bar View
 def stackedBarIncidentTypeCountry(request):
-    query = '''
-    SELECT 
-        fl.country, 
-        fi.incident_type, 
-        COUNT(*) as count
-    FROM incident fi  -- Updated table name to match the model name
-    JOIN locations fl ON fi.location_id = fl.id  -- Updated to match the Locations model
-    GROUP BY fl.country, fi.incident_type
-    '''
-    
+    # Group by country and severity_level
+    qs = Incident.objects.values('location__country', 'severity_level').annotate(count=Count('id'))
     data = {}
-    with connection.cursor() as cursor:
-        cursor.execute(query)
-        for country, incident_type, count in cursor.fetchall():
-            if country not in data:
-                data[country] = {}
-            data[country][incident_type] = count
-    
+    for row in qs:
+        country = row['location__country'] or "Unknown"
+        severity = row['severity_level'] or "Unknown"
+        if country not in data:
+            data[country] = {}
+        data[country][severity] = row['count']
     return JsonResponse(data)
 
 
