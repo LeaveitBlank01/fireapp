@@ -516,3 +516,12 @@ def multi_line_chart(request):
         "CountryC": {"Jan": 12, "Feb": 22, "Mar": 32, "Apr": 42, "May": 52, "Jun": 62, "Jul": 72, "Aug": 82, "Sep": 92, "Oct": 102, "Nov": 112, "Dec": 122}
     }
     return JsonResponse(data)
+
+def multi_bar_chart(request):
+    # Example data, replace with your real data logic
+    data = {
+        "Minor": {"Dec": 10, "Jan": 20, "Feb": 30, "Mar": 40, "Apr": 50, "May": 60, "Jun": 70, "Jul": 80, "Aug": 90, "Sep": 100, "Oct": 110, "Nov": 120},
+        "Moderate": {"Dec": 15, "Jan": 25, "Feb": 35, "Mar": 45, "Apr": 55, "May": 65, "Jun": 75, "Jul": 85, "Aug": 95, "Sep": 105, "Oct": 115, "Nov": 125},
+        "Major": {"Dec": 12, "Jan": 22, "Feb": 32, "Mar": 42, "Apr": 52, "May": 62, "Jun": 72, "Jul": 82, "Aug": 92, "Sep": 102, "Oct": 112, "Nov": 122}
+    }
+    return JsonResponse(data)

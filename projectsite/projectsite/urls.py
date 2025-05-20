@@ -56,4 +56,5 @@ urlpatterns = [
     path('location_list/<pk>/delete/', LocationDeleteView.as_view(), name='location-delete'),
 
     path('multiLineChart/', views.multi_line_chart, name='multi_line_chart'),
+    path('multiBarChart/', views.multi_bar_chart, name='multi_bar_chart'),
 ]

@@ -961,4 +961,54 @@ function loadMultipleLineChart() {
 
 loadMultipleLineChart();
     </script>
+    <script>
+function loadMultipleBarChart() {
+    fetch("/multiBarChart/")
+        .then(response => response.json())
+        .then(result => {
+            const levels = Object.keys(result);
+            const monthOrder = ["Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov"];
+            const colors = [
+                "#90cdf4", // Minor
+                "#f6ad55", // Moderate
+                "#fc8181"  // Major
+            ];
+
+            const datasets = levels.map((level, idx) => {
+                const data = monthOrder.map(month => result[level][month] || 0);
+                return {
+                    label: level + " Fires",
+                    backgroundColor: colors[idx % colors.length],
+                    borderColor: colors[idx % colors.length],
+                    data: data
+                };
+            });
+
+            const ctx = document.getElementById("multipleBarChart").getContext("2d");
+            new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: monthOrder,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: "bottom" },
+                        title: { display: true, text: "Daily Fire Incidents by Severity Level" },
+                        tooltip: { mode: "index", intersect: false }
+                    },
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true }
+                    }
+                }
+            });
+        })
+        .catch(error => console.error("Error:", error));
+}
+
+loadMultipleBarChart();
+    </script>
     {% endblock %}
