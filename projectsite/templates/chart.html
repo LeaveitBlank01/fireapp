@@ -82,7 +82,7 @@
                     </div>
                     <div class="card-body">
                         <div class="chart-container">
-                            <canvas id="multipleLineChart"></canvas>
+                            <canvas id="multipleLineChart" height="120"></canvas>
                         </div>
                     </div>
                 </div>
@@ -910,5 +910,55 @@
         for (var i = 0; i < legendItems.length; i += 1) {
             legendItems[i].addEventListener("click", legendClickCallback, false);
         }
+    </script>
+    <script>
+function loadMultipleLineChart() {
+    fetch("/multiLineChart/")
+        .then(response => response.json())
+        .then(result => {
+            const countries = Object.keys(result);
+            const monthOrder = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const colors = [
+                "#1d7af3", "#f3545d", "#fdaf4b", "#59d05d", "#716aca", "#ffa534"
+            ];
+
+            const datasets = countries.map((country, idx) => {
+                const data = monthOrder.map(month => result[country][month] || 0);
+                return {
+                    label: country,
+                    data: data,
+                    borderColor: colors[idx % colors.length],
+                    backgroundColor: "transparent",
+                    pointBorderColor: "#FFF",
+                    pointBackgroundColor: colors[idx % colors.length],
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: false
+                };
+            });
+
+            const ctx = document.getElementById("multipleLineChart").getContext("2d");
+            new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: monthOrder,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: "top" },
+                        title: { display: true, text: "Multiple Line Chart" }
+                    },
+                    layout: {
+                        padding: { left: 15, right: 15, top: 15, bottom: 15 }
+                    }
+                }
+            });
+        })
+        .catch(error => console.error("Error:", error));
+}
+
+loadMultipleLineChart();
     </script>
     {% endblock %}

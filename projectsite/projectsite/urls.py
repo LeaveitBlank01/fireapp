@@ -55,4 +55,5 @@ urlpatterns = [
     path('location/<int:pk>/update/', LocationUpdateView.as_view(), name='location-update'),
     path('location_list/<pk>/delete/', LocationDeleteView.as_view(), name='location-delete'),
 
+    path('multiLineChart/', views.multi_line_chart, name='multi_line_chart'),
 ]

@@ -507,3 +507,12 @@ class BoatCreateView(CreateView):
 
         messages.success(request, "Boat added successfully!")
         return super().post(request, *args, **kwargs)
+
+def multi_line_chart(request):
+    # Example data, replace with your real data logic
+    data = {
+        "CountryA": {"Jan": 10, "Feb": 20, "Mar": 30, "Apr": 40, "May": 50, "Jun": 60, "Jul": 70, "Aug": 80, "Sep": 90, "Oct": 100, "Nov": 110, "Dec": 120},
+        "CountryB": {"Jan": 15, "Feb": 25, "Mar": 35, "Apr": 45, "May": 55, "Jun": 65, "Jul": 75, "Aug": 85, "Sep": 95, "Oct": 105, "Nov": 115, "Dec": 125},
+        "CountryC": {"Jan": 12, "Feb": 22, "Mar": 32, "Apr": 42, "May": 52, "Jun": 62, "Jul": 72, "Aug": 82, "Sep": 92, "Oct": 102, "Nov": 112, "Dec": 122}
+    }
+    return JsonResponse(data)
