@@ -21,6 +21,10 @@ from fire.views import (
     LocationCreateView,
     LocationUpdateView,
     LocationDeleteView,
+    FirestationListView,
+    FirestationCreateView,
+    FirestationUpdateView,
+    FirestationDeleteView,
 )   
 
 
@@ -57,4 +61,9 @@ urlpatterns = [
 
     path('multiLineChart/', views.multi_line_chart, name='multi_line_chart'),
     path('multiBarChart/', views.multi_bar_chart, name='multi_bar_chart'),
+
+    path('firestations/', FirestationListView.as_view(), name='firestation-list'),
+    path('firestation/create/', FirestationCreateView.as_view(), name='firestation-add'),
+    path('firestation/<int:pk>/update/', FirestationUpdateView.as_view(), name='firestation-update'),
+    path('firestation/<int:pk>/delete/', FirestationDeleteView.as_view(), name='firestation-delete'),
 ]

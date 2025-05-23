@@ -512,3 +512,76 @@ def multi_bar_chart(request):
         "Major": {"Dec": 12, "Jan": 22, "Feb": 32, "Mar": 42, "Apr": 52, "May": 62, "Jun": 72, "Jul": 82, "Aug": 92, "Sep": 102, "Oct": 112, "Nov": 122}
     }
     return JsonResponse(data)
+
+class FirestationListView(ListView):
+    model = FireStation
+    template_name = 'firestation_list.html'
+    context_object_name = 'object_list'
+    paginate_by = 10
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super().get_queryset(*args, **kwargs)
+        query = self.request.GET.get("q")
+        if query:
+            qs = qs.filter(
+                Q(name__icontains=query) |
+                Q(address__icontains=query) |
+                Q(city__icontains=query) |
+                Q(country__icontains=query)
+            )
+        return qs
+
+class FirestationCreateView(CreateView):
+    model = FireStation
+    form_class = FireStationzForm
+    template_name = 'firestation_add.html'
+    success_url = reverse_lazy('firestation-list')
+
+    def form_valid(self, form):
+        name = form.instance.name
+        messages.success(self.request, f'Fire Station "{name}" created successfully!')
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['firestation_list'] = self.success_url  
+        return context
+class FirestationUpdateView(UpdateView):
+    model = FireStation
+    form_class = FireStationzForm
+    template_name = 'firestation_edit.html'
+    success_url = reverse_lazy('firestation-list')
+
+    def form_valid(self, form):
+        name = form.instance.name
+        messages.success(self.request, f'Fire Station "{name}" updated successfully!')
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['firestation_list'] = self.success_url  
+        return context
+class FirestationDeleteView(DeleteView):
+    model = FireStation
+    template_name = 'firestation_del.html'
+    success_url = reverse_lazy('firestation-list')
+    context_object_name = 'firestation'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f"Delete Fire Station #{self.object.id}"
+        return context
+
+    def form_valid(self, form):
+        name = self.object.name
+        response = super().form_valid(form)
+        messages.success(self.request, 
+            f'Fire Station "{name}" was successfully deleted.',
+            extra_tags='danger'
+        )
+        return response
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['firestation_list'] = self.success_url
+        return context
