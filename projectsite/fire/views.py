@@ -590,16 +590,18 @@ class FireTruckListView(ListView):
     model = FireTruck
     template_name = 'firetruck_list.html'
     context_object_name = 'object_list'
-    paginate_by = 10
+    paginate_by = 10 # You might have this already
 
     def get_queryset(self, *args, **kwargs):
         qs = super().get_queryset(*args, **kwargs)
         query = self.request.GET.get("q")
         if query:
+            # Filter FireTrucks by truck_number or model
             qs = qs.filter(
-                Q(name__icontains=query) |
-                Q(model__icontains=query) |
-                Q(year__icontains=query)
+                Q(truck_number__icontains=query) | # Search by truck number
+                Q(model__icontains=query)           # Search by model
+                # If 'station' is a ForeignKey to FireStation and you want to search by station name:
+                # | Q(station__name__icontains=query)
             )
         return qs
 
