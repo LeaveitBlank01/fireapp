@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add New Firefighter{% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                   <div class="card-header">
+                       <div class="card-title">Add New Firefighter</div>
+                   </div>
+                    <div class="col-md-6">
+                        <div class="card-body">
+                            <form class="" action="" method="post" novalidate>
+                                {% csrf_token %}
+                                {% include 'includes/form.html' %} {# This partial will render all your form fields #}
+
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-3">
+                                        <button type="submit" class="btn btn-primary btn-rounded">Submit</button>
+                                        <a href="{% url 'firefighters-list' %}" class="btn btn-secondary btn-rounded">Cancel</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

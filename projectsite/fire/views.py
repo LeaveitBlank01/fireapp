@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from fire.models import Locations, Incident, FireStation
+from fire.models import Locations, Incident, FireStation, FireTruck, Firefighters
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.db.models import Q
@@ -11,7 +11,7 @@ from django.db.models.functions import ExtractMonth
 from django.db.models import Count
 from datetime import datetime
 
-from fire.forms import Incident_Form ,LocationForm, FireStationzForm
+from fire.forms import Incident_Form ,LocationForm, FireStationzForm, Firetruckform, FirefightersForm
 
 
 class HomePageView(ListView):
@@ -585,3 +585,200 @@ class FirestationDeleteView(DeleteView):
         context = super().get_context_data(**kwargs)
         context['firestation_list'] = self.success_url
         return context
+
+class FireTruckListView(ListView):
+    model = FireTruck
+    template_name = 'firetruck_list.html'
+    context_object_name = 'object_list'
+    paginate_by = 10
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super().get_queryset(*args, **kwargs)
+        query = self.request.GET.get("q")
+        if query:
+            qs = qs.filter(
+                Q(name__icontains=query) |
+                Q(model__icontains=query) |
+                Q(year__icontains=query)
+            )
+        return qs
+
+class FireTruckCreateView(CreateView):
+    model = FireTruck
+    form_class = Firetruckform
+    template_name = 'firetruck_add.html'
+    success_url = reverse_lazy('firetruck-list')
+
+    def form_valid(self, form):
+        name = form.instance.name
+        messages.success(self.request, f'Fire Truck "{name}" created successfully!')
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['firetruck_list'] = self.success_url  
+        return context
+
+class FireTruckUpdateView(UpdateView):
+    model = FireTruck
+    form_class = Firetruckform
+    template_name = 'firetruck_edit.html'
+    success_url = reverse_lazy('firetruck-list')
+
+    def form_valid(self, form):
+        name = form.instance.name
+        messages.success(self.request, f'Fire Truck "{name}" updated successfully!')
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['firetruck_list'] = self.success_url  
+        return context
+    
+class FireTruckDeleteView(DeleteView):
+    model = FireTruck
+    template_name = 'firetruck_del.html'
+    success_url = reverse_lazy('firetruck-list')
+    context_object_name = 'firetruck'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f"Delete Fire Truck #{self.object.id}"
+        return context
+
+    def form_valid(self, form):
+        name = self.object.name
+        response = super().form_valid(form)
+        messages.success(self.request, 
+            f'Fire Truck "{name}" was successfully deleted.',
+            extra_tags='danger'
+        )
+        return response
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['firetruck_list'] = self.success_url
+        return context
+    
+class FirefightersCreateView(CreateView):
+    model = Firefighters
+    form_class = FirefightersForm
+    template_name = 'firefighter_add.html'
+    success_url = reverse_lazy('firefighters-list') # <<-- CHANGED TO PLURAL
+
+    def form_valid(self, form):
+        name = form.instance.name
+        messages.success(self.request, f'Firefighter "{name}" created successfully!')
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # This context variable is optional, success_url is handled internally
+        context['firefighter_list'] = self.success_url
+        return context
+    
+class FirefightersUpdateView(UpdateView):
+    model = Firefighters
+    form_class = FirefightersForm
+    template_name = 'firefighter_edit.html'
+    success_url = reverse_lazy('firefighters-list') # <<-- CHANGED TO PLURAL
+
+    def form_valid(self, form):
+        name = form.instance.name
+        messages.success(self.request, f'Firefighter "{name}" updated successfully!')
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # This context variable is optional
+        context['firefighter_list'] = self.success_url
+        return context
+    
+class FirefightersDeleteView(DeleteView):
+    model = Firefighters
+    template_name = 'firefighter_del.html'
+    success_url = reverse_lazy('firefighters-list') # <<-- CHANGED TO PLURAL
+    context_object_name = 'firefighter'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f"Delete Firefighter #{self.object.id}"
+        return context
+
+    def form_valid(self, form):
+        name = self.object.name
+        response = super().form_valid(form)
+        messages.success(self.request,
+            f'Firefighter "{name}" was successfully deleted.',
+            extra_tags='danger'
+        )
+        return response
+
+class FirefightersListView(ListView):
+    model = Firefighters
+    template_name = 'firefighter_list.html'
+    context_object_name = 'object_list'
+    paginate_by = 10
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super().get_queryset(*args, **kwargs)
+        query = self.request.GET.get("q")
+        if query:
+            qs = qs.filter(
+                Q(name__icontains=query) |
+                Q(rank__icontains=query) |
+                Q(experience_level__icontains=query)
+            )
+        return qs
+    
+class FirefightersCreateView(CreateView):
+    model = Firefighters
+    form_class = FirefightersForm
+    template_name = 'firefighter_add.html'
+    success_url = reverse_lazy('firefighters-list')
+
+    def form_valid(self, form):
+        name = form.instance.name
+        messages.success(self.request, f'Firefighter "{name}" created successfully!')
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['firefighter_list'] = self.success_url
+        return context
+    
+class FirefightersUpdateView(UpdateView):
+    model = Firefighters
+    form_class = FirefightersForm
+    template_name = 'firefighter_edit.html'
+    success_url = reverse_lazy('firefighters-list')
+
+    def form_valid(self, form):
+        name = form.instance.name
+        messages.success(self.request, f'Firefighter "{name}" updated successfully!')
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['firefighter_list'] = self.success_url
+        return context
+    
+class FirefightersDeleteView(DeleteView):
+    model = Firefighters
+    template_name = 'firefighter_del.html'
+    success_url = reverse_lazy('firefighters-list')
+    context_object_name = 'firefighter'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f"Delete Firefighter #{self.object.id}"
+        return context
+
+    def form_valid(self, form):
+        name = self.object.name
+        response = super().form_valid(form)
+        messages.success(self.request,
+            f'Firefighter "{name}" was successfully deleted.',
+            extra_tags='danger'
+        )
+        return response

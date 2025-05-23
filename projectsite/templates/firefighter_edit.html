@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Firefighter{% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                   <div class="card-header">
+                       {# Access the firefighter object by its default context name 'object' #}
+                       <div class="card-title">Edit Firefighter: {{ object.name }}</div>
+                   </div>
+                    <div class="col-md-6">
+                        <div class="card-body">
+                            <form class="" action="" method="post" novalidate>
+                                {% csrf_token %}
+                                {% include 'includes/form.html' %} {# This partial will render all your form fields #}
+
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-3">
+                                        <button type="submit" class="btn btn-primary btn-rounded">Update</button>
+                                        <a href="{% url 'firefighters-list' %}" class="btn btn-secondary btn-rounded">Cancel</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
