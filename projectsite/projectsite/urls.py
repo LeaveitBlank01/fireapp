@@ -33,6 +33,12 @@ from fire.views import (
     FirefightersCreateView,
     FirefightersUpdateView,
     FirefightersDeleteView,
+    WeatherConditionsListView,
+    WeatherConditionsCreateView,
+    WeatherConditionsUpdateView,
+    WeatherConditionsDeleteView,
+    WeatherConditionsDetailView,
+    IncidentDetailView,
 )   
 
 
@@ -85,4 +91,12 @@ urlpatterns = [
     path('firefighter/create/', FirefightersCreateView.as_view(), name='firefighter-add'),
     path('firefighter/<int:pk>/update/', FirefightersUpdateView.as_view(), name='firefighter-update'),
     path('firefighter/<int:pk>/delete/', FirefightersDeleteView.as_view(), name='firefighter-delete'),
+
+    path('weatherconditions/', WeatherConditionsListView.as_view(), name='weatherconditions-list'),
+    path('weathercondition/create/', WeatherConditionsCreateView.as_view(), name='weatherconditions-add'),
+    path('weathercondition/<int:pk>/update/', WeatherConditionsUpdateView.as_view(), name='weatherconditions-edit'),
+    path('weathercondition/<int:pk>/delete/', WeatherConditionsDeleteView.as_view(), name='weatherconditions-delete'),
+    path('weathercondition/<int:pk>/', WeatherConditionsDetailView.as_view(), name='weatherconditions-detail'),
+
+    path('incident/<int:pk>/', IncidentDetailView.as_view(), name='incident-detail'),
 ]

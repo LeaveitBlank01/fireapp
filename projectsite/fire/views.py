@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from fire.models import Locations, Incident, FireStation, FireTruck, Firefighters
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from fire.models import Locations, Incident, FireStation, FireTruck, Firefighters, WeatherConditions
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.db.models import Q
@@ -11,7 +11,7 @@ from django.db.models.functions import ExtractMonth
 from django.db.models import Count
 from datetime import datetime
 
-from fire.forms import Incident_Form ,LocationForm, FireStationzForm, Firetruckform, FirefightersForm
+from fire.forms import Incident_Form ,LocationForm, FireStationzForm, Firetruckform, FirefightersForm, Weather_condition
 
 
 class HomePageView(ListView):
@@ -163,7 +163,7 @@ def multipleBarBySeverity(request):
     months = set(str(i).zfill(2) for i in range(1, 13))
 
     for row in rows:
-        level = str(row[0])  # Ensure the severity level is a string
+        level = str(row[0])  
         month = row[1]
         total_incidents = row[2]
 
@@ -172,7 +172,7 @@ def multipleBarBySeverity(request):
 
         result[level][month] = total_incidents
 
-    # Sort months within each severity level
+
     for level in result:
         result[level] = dict(sorted(result[level].items()))
 
@@ -476,7 +476,7 @@ def some_view(request):
     messages.success(request, "Action completed successfully!")
    
 
-# Boat: Create View
+
 class BoatCreateView(CreateView):
     model = Incident  
     form_class = Incident_Form
@@ -590,18 +590,15 @@ class FireTruckListView(ListView):
     model = FireTruck
     template_name = 'firetruck_list.html'
     context_object_name = 'object_list'
-    paginate_by = 10 # You might have this already
+    paginate_by = 10 
 
     def get_queryset(self, *args, **kwargs):
         qs = super().get_queryset(*args, **kwargs)
         query = self.request.GET.get("q")
         if query:
-            # Filter FireTrucks by truck_number or model
             qs = qs.filter(
-                Q(truck_number__icontains=query) | # Search by truck number
-                Q(model__icontains=query)           # Search by model
-                # If 'station' is a ForeignKey to FireStation and you want to search by station name:
-                # | Q(station__name__icontains=query)
+                Q(truck_number__icontains=query) | 
+                Q(model__icontains=query)           
             )
         return qs
 
@@ -666,7 +663,7 @@ class FirefightersCreateView(CreateView):
     model = Firefighters
     form_class = FirefightersForm
     template_name = 'firefighter_add.html'
-    success_url = reverse_lazy('firefighters-list') # <<-- CHANGED TO PLURAL
+    success_url = reverse_lazy('firefighters-list') 
 
     def form_valid(self, form):
         name = form.instance.name
@@ -675,7 +672,6 @@ class FirefightersCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # This context variable is optional, success_url is handled internally
         context['firefighter_list'] = self.success_url
         return context
     
@@ -683,7 +679,7 @@ class FirefightersUpdateView(UpdateView):
     model = Firefighters
     form_class = FirefightersForm
     template_name = 'firefighter_edit.html'
-    success_url = reverse_lazy('firefighters-list') # <<-- CHANGED TO PLURAL
+    success_url = reverse_lazy('firefighters-list') 
 
     def form_valid(self, form):
         name = form.instance.name
@@ -692,7 +688,6 @@ class FirefightersUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # This context variable is optional
         context['firefighter_list'] = self.success_url
         return context
     
@@ -784,3 +779,66 @@ class FirefightersDeleteView(DeleteView):
             extra_tags='danger'
         )
         return response
+    
+class IncidentDetailView(DetailView):
+    model = Incident
+    template_name = 'fire/incident_detail.html' 
+    context_object_name = 'incident'
+
+
+class WeatherConditionsListView(ListView):
+    model = WeatherConditions
+    template_name = 'weatherconditions_list.html' 
+    context_object_name = 'weather_conditions' 
+    paginate_by = 10
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super().get_queryset(*args, **kwargs)
+        query = self.request.GET.get("q")
+        if query:
+            qs = qs.filter(
+                Q(incident__location__name__icontains=query) | 
+                Q(temperature__icontains=query) |
+                Q(humidity__icontains=query) |
+                Q(wind_speed__icontains=query) |
+                Q(weather_description__icontains=query)
+            )
+        return qs
+
+class WeatherConditionsCreateView(CreateView):
+    model = WeatherConditions
+    form_class = Weather_condition
+    template_name = 'weatherconditions_add.html' 
+    success_url = reverse_lazy('weatherconditions-list')
+
+    def form_valid(self, form):
+        weather_identifier = form.instance.weather_description or f"ID {self.object.pk}"
+        messages.success(self.request, f'Weather Condition "{weather_identifier}" created successfully!')
+        return super().form_valid(form)
+
+class WeatherConditionsDetailView(DetailView):
+    model = WeatherConditions
+    template_name = 'weatherconditions_detail.html' 
+    context_object_name = 'weather_condition'
+
+class WeatherConditionsUpdateView(UpdateView):
+    model = WeatherConditions
+    form_class = Weather_condition
+    template_name = 'weatherconditions_edit.html'
+    context_object_name = 'weather_condition'
+    success_url = reverse_lazy('weatherconditions-list')
+
+    def form_valid(self, form):
+        weather_identifier = form.instance.weather_description or f"ID {self.object.pk}"
+        messages.success(self.request, f'Weather Condition "{weather_identifier}" updated successfully!')
+        return super().form_valid(form)
+
+class WeatherConditionsDeleteView(DeleteView):
+    model = WeatherConditions
+    template_name = 'weatherconditions_del.html'
+    context_object_name = 'weather_condition'
+    success_url = reverse_lazy('weatherconditions-list')
+
+    def post(self, request, *args, **kwargs):
+        messages.success(self.request, f"Weather Condition '{self.get_object().weather_description}' deleted successfully!")
+        return super().post(request, *args, **kwargs)

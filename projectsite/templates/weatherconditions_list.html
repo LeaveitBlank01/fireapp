@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Weather Conditions List{% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                   <div class="card-header">
+                       <h4 class="card-title">List of Weather Conditions</h4>
+                       <div class="card-tools">
+                           <a href="{% url 'weatherconditions-add' %}" class="btn btn-primary btn-round btn-sm">
+                               <i class="fa fa-plus"></i> Add New Weather Data
+                           </a>
+                       </div>
+                   </div>
+                   <br>
+                   <div class="col-md-12 row">
+                       <div class="col-md-4">
+                           {# Optional: Add search form here later if needed #}
+                           {#
+                           <form class="navbar-left navbar-form nav-search mr-md-3" action="{% url 'weatherconditions-list' %}">
+                               <div class="form-group">
+                                   <div class="input-group">
+                                       <input type="text" id="search" placeholder="Search description..." class="form-control form-control-sm" name="q" value="{{ request.GET.q|default_if_none:'' }}" />
+                                       <div class="input-group-append">
+                                           <button class="btn btn-sm btn-primary" type="submit">Search</button>
+                                       </div>
+                                   </div>
+                               </div>
+                           </form>
+                           #}
+                       </div>
+                       <div class="col-md-2"></div>
+                       <div class="col-md-6">
+                           <div class="pull-right">
+                               {# This is already covered by the card-tools button above, but keeping for reference if you want another placement #}
+                               {# <a href="{% url 'weatherconditions-add' %}" class="btn btn-warning btn-rounded">Add new Weather Data</a> #}
+                           </div>
+                       </div>
+                   </div>
+                   <div class="card-body">
+                       <div class="table-responsive">
+                           <table id="add-row" class="display table table-striped table-hover">
+                               <thead>
+                                   <tr>
+                                       <th scope="col">Incident ID</th>
+                                       <th scope="col">Temperature (°C)</th>
+                                       <th scope="col">Humidity (%)</th>
+                                       <th scope="col">Wind Speed (km/h)</th>
+                                       <th scope="col">Description</th>
+                                       <th scope="col">Created At</th>
+                                       <th scope="col">Actions</th>
+                                   </tr>
+                               </thead>
+                               <tbody>
+                                   {% for condition in weather_conditions %}
+                                   <tr>
+                                       <td>
+                                           {% if condition.incident %}
+                                               <a href="{% url 'incident-detail' condition.incident.pk %}">{{ condition.incident.pk }}</a>
+                                           {% else %}
+                                               N/A
+                                           {% endif %}
+                                       </td>
+                                       <td>{{ condition.temperature }}</td>
+                                       <td>{{ condition.humidity }}</td>
+                                       <td>{{ condition.wind_speed }}</td>
+                                       <td>{{ condition.weather_description }}</td>
+                                       <td>{{ condition.created_at|date:"Y-m-d H:i" }}</td> {# Format date/time nicely #}
+                                       <td>
+                                           <div class="form-button-action">
+                                               <a href="{% url 'weatherconditions-detail' condition.pk %}" data-toggle="tooltip" title="View Details" class="btn btn-link btn-primary btn-lg">
+                                                   <i class="fa fa-eye"></i>
+                                               </a>
+                                               <a href="{% url 'weatherconditions-edit' condition.pk %}" data-toggle="tooltip" title="Edit" class="btn btn-link btn-primary btn-lg">
+                                                   <i class="fa fa-edit"></i>
+                                               </a>
+                                               <a href="{% url 'weatherconditions-delete' condition.pk %}" data-toggle="tooltip" title="Remove" class="btn btn-link btn-danger">
+                                                   <i class="fa fa-times"></i>
+                                               </a>
+                                           </div>
+                                       </td>
+                                   </tr>
+                                   {% empty %}
+                                   <tr>
+                                       <td colspan="7" style="text-align: center">
+                                           <p class="text-sm font-weight-bold mb-0">No weather conditions recorded yet.</p>
+                                       </td>
+                                   </tr>
+                                   {% endfor %}
+                               </tbody>
+                           </table>
+                       </div>
+                       {% include 'includes/pagination.html' %} {# Assuming you have a pagination include #}
+                   </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

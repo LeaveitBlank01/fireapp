@@ -1,0 +1,70 @@
+{% extends 'base.html' %} {# Extends your main layout template #}
+{% load static %} {# If you're using static files like CSS/JS #}
+
+{% block title %}Weather Condition Details: {{ weather_condition.pk }}{% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-8 offset-md-2"> {# Centers the card on larger screens #}
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Weather Condition Details for ID: {{ weather_condition.pk }}</h4>
+                    </div>
+                    <div class="card-body">
+                        {# Using a definition list for clear key-value pairs #}
+                        <dl class="row">
+                            <dt class="col-sm-4"><strong>Weather ID:</strong></dt>
+                            <dd class="col-sm-8">{{ weather_condition.pk }}</dd>
+
+                            <dt class="col-sm-4"><strong>Associated Incident:</strong></dt>
+                            <dd class="col-sm-8">
+                                {% if weather_condition.incident %}
+                                    {# Link to the incident detail page #}
+                                    <a href="{% url 'incident-detail' weather_condition.incident.pk %}">
+                                        Incident ID: {{ weather_condition.incident.pk }} - {{ weather_condition.incident }}
+                                    </a>
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </dd>
+
+                            <dt class="col-sm-4"><strong>Temperature:</strong></dt>
+                            <dd class="col-sm-8">{{ weather_condition.temperature }}</dd>
+
+                            <dt class="col-sm-4"><strong>Humidity:</strong></dt>
+                            <dd class="col-sm-8">{{ weather_condition.humidity }}</dd>
+
+                            <dt class="col-sm-4"><strong>Wind Speed:</strong></dt>
+                            <dd class="col-sm-8">{{ weather_condition.wind_speed }}</dd>
+
+                            <dt class="col-sm-4"><strong>Weather Description:</strong></dt>
+                            <dd class="col-sm-8">{{ weather_condition.weather_description }}</dd>
+
+                            <dt class="col-sm-4"><strong>Recorded At:</strong></dt>
+                            <dd class="col-sm-8">{{ weather_condition.created_at|date:"Y-m-d H:i" }}</dd>
+
+                            <dt class="col-sm-4"><strong>Last Updated:</strong></dt>
+                            <dd class="col-sm-8">{{ weather_condition.updated_at|date:"Y-m-d H:i" }}</dd>
+                        </dl>
+
+                        <hr> {# A horizontal rule for visual separation #}
+
+                        <div class="text-right">
+                            {# Link back to the list of weather conditions #}
+                            <a href="{% url 'weatherconditions-list' %}" class="btn btn-secondary mr-2">
+                                <i class="fa fa-list"></i> Back to Weather Conditions List
+                            </a>
+                            {# Link to edit this specific weather condition #}
+                            <a href="{% url 'weatherconditions-edit' weather_condition.pk %}" class="btn btn-primary">
+                                <i class="fa fa-edit"></i> Edit Weather Condition
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

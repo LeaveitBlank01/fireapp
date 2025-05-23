@@ -1,0 +1,81 @@
+{% extends 'base.html' %} {# Extends your base layout template #}
+{% load static %} {# If you use static files like CSS/JS #}
+
+{% block title %}Incident Details: #{{ incident.pk }}{% endblock %} {# Sets the page title #}
+
+{% block content %}
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-8 offset-md-2"> {# Centers the card on larger screens #}
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Details for Incident ID: {{ incident.pk }}</h4>
+                    </div>
+                    <div class="card-body">
+                        {# Using a definition list for clear key-value pairs #}
+                        <dl class="row">
+                            <dt class="col-sm-4"><strong>Incident ID:</strong></dt>
+                            <dd class="col-sm-8">{{ incident.pk }}</dd>
+
+                            {# You'll need to add/adjust these fields based on your actual Incident model #}
+                            {# If your Incident model has a 'name' field #}
+                            <dt class="col-sm-4"><strong>Incident Name:</strong></dt>
+                            <dd class="col-sm-8">{{ incident.name|default:"N/A" }}</dd>
+
+                            {# If your Incident model has a 'location' field #}
+                            <dt class="col-sm-4"><strong>Location:</strong></dt>
+                            <dd class="col-sm-8">{{ incident.location|default:"N/A" }}</dd>
+
+                            {# If your Incident model has a 'description' field #}
+                            <dt class="col-sm-4"><strong>Description:</strong></dt>
+                            <dd class="col-sm-8">{{ incident.description|default:"No description provided" }}</dd>
+
+                            {# If your Incident model has a 'start_time' field #}
+                            <dt class="col-sm-4"><strong>Start Time:</strong></dt>
+                            <dd class="col-sm-8">{{ incident.start_time|date:"Y-m-d H:i"|default:"N/A" }}</dd>
+
+                            {# If your Incident model has an 'end_time' field #}
+                            <dt class="col-sm-4"><strong>End Time:</strong></dt>
+                            <dd class="col-sm-8">{{ incident.end_time|date:"Y-m-d H:i"|default:"Still ongoing" }}</dd>
+
+                            {# If your Incident model has a 'status' field #}
+                            <dt class="col-sm-4"><strong>Status:</strong></dt>
+                            <dd class="col-sm-8">{{ incident.status|default:"N/A" }}</dd>
+
+                            {# Fields from BaseModel (if inherited and applicable) #}
+                            <dt class="col-sm-4"><strong>Created At:</strong></dt>
+                            <dd class="col-sm-8">{{ incident.created_at|date:"Y-m-d H:i" }}</dd>
+
+                            <dt class="col-sm-4"><strong>Last Updated:</strong></dt>
+                            <dd class="col-sm-8">{{ incident.updated_at|date:"Y-m-d H:i" }}</dd>
+
+                            <dt class="col-sm-4"><strong>Active:</strong></dt>
+                            <dd class="col-sm-8">
+                                {% if incident.is_active %}
+                                    <span class="badge badge-success">Yes</span>
+                                {% else %}
+                                    <span class="badge badge-danger">No</span>
+                                {% endif %}
+                            </dd>
+                        </dl>
+
+                        <hr> {# A horizontal rule for visual separation #}
+
+                        <div class="text-right">
+                            {# Link back to the list of incidents #}
+                            <a href="{% url 'incident-list' %}" class="btn btn-secondary mr-2">
+                                <i class="fa fa-list"></i> Back to All Incidents
+                            </a>
+                            {# Link to edit this specific incident #}
+                            <a href="{% url 'incident-update' incident.pk %}" class="btn btn-primary">
+                                <i class="fa fa-edit"></i> Edit Incident
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
